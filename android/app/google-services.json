@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "560064306178",
+    "project_id": "ros2-4a64c",
+    "storage_bucket": "ros2-4a64c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:560064306178:android:2bacc9093f625572589b1b",
+        "android_client_info": {
+          "package_name": "com.example.ros2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq3fC4LorWu4gHwsgcin7siqb74X9METU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
