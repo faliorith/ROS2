@@ -6,7 +6,7 @@
             "name": "Flutter",
             "request": "launch",
             "type": "dart",
-            "deviceId": "Pixel_7_API_35_flutter"
+            "deviceId": "emulator-5554"
         }
     ]
 }

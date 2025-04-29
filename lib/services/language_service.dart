@@ -19,9 +19,9 @@ class LanguageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setLanguage(String languageCode) async {
-    _locale = Locale(languageCode);
-    await _prefs.setString(_languageKey, languageCode);
+  Future<void> setLocale(Locale locale) async {
+    _locale = locale;
+    await _prefs.setString(_languageKey, locale.languageCode);
     notifyListeners();
   }
 } 

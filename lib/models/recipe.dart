@@ -4,33 +4,62 @@ class Recipe {
   final String id;
   final String title;
   final String description;
+  final String imageUrl;
   final List<String> ingredients;
   final List<String> steps;
-  final String imageUrl;
-  final String userId;
-  final DateTime createdAt;
+  final List<String> tags;
+  final double rating;
+  final int difficulty;
+  final int cookingTime;
+  final int servings;
+  final String cookingMethod;
+  bool isFavorite;
 
   Recipe({
     required this.id,
     required this.title,
     required this.description,
+    required this.imageUrl,
     required this.ingredients,
     required this.steps,
-    required this.imageUrl,
-    required this.userId,
-    required this.createdAt,
+    required this.tags,
+    required this.rating,
+    required this.difficulty,
+    required this.cookingTime,
+    required this.servings,
+    required this.cookingMethod,
+    this.isFavorite = false,
   });
 
-  factory Recipe.fromMap(Map<String, dynamic> map) {
+  Recipe copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? imageUrl,
+    List<String>? ingredients,
+    List<String>? steps,
+    List<String>? tags,
+    double? rating,
+    int? difficulty,
+    int? cookingTime,
+    int? servings,
+    String? cookingMethod,
+    bool? isFavorite,
+  }) {
     return Recipe(
-      id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      ingredients: List<String>.from(map['ingredients'] ?? []),
-      steps: List<String>.from(map['steps'] ?? []),
-      imageUrl: map['imageUrl'] ?? '',
-      userId: map['userId'] ?? '',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      ingredients: ingredients ?? this.ingredients,
+      steps: steps ?? this.steps,
+      tags: tags ?? this.tags,
+      rating: rating ?? this.rating,
+      difficulty: difficulty ?? this.difficulty,
+      cookingTime: cookingTime ?? this.cookingTime,
+      servings: servings ?? this.servings,
+      cookingMethod: cookingMethod ?? this.cookingMethod,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
@@ -39,11 +68,53 @@ class Recipe {
       'id': id,
       'title': title,
       'description': description,
+      'imageUrl': imageUrl,
       'ingredients': ingredients,
       'steps': steps,
-      'imageUrl': imageUrl,
-      'userId': userId,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'tags': tags,
+      'rating': rating,
+      'difficulty': difficulty,
+      'cookingTime': cookingTime,
+      'servings': servings,
+      'cookingMethod': cookingMethod,
+      'isFavorite': isFavorite,
     };
+  }
+
+  factory Recipe.fromMap(Map<String, dynamic> map) {
+    return Recipe(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      imageUrl: map['imageUrl'] as String,
+      ingredients: List<String>.from(map['ingredients']),
+      steps: List<String>.from(map['steps']),
+      tags: List<String>.from(map['tags']),
+      rating: (map['rating'] as num).toDouble(),
+      difficulty: map['difficulty'] as int,
+      cookingTime: map['cookingTime'] as int,
+      servings: map['servings'] as int,
+      cookingMethod: map['cookingMethod'] as String,
+      isFavorite: map['isFavorite'] as bool? ?? false,
+    );
+  }
+
+  factory Recipe.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Recipe(
+      id: doc.id,
+      title: data['title'] as String,
+      description: data['description'] as String,
+      imageUrl: data['imageUrl'] as String,
+      ingredients: List<String>.from(data['ingredients']),
+      steps: List<String>.from(data['steps']),
+      tags: List<String>.from(data['tags']),
+      rating: (data['rating'] as num).toDouble(),
+      difficulty: data['difficulty'] as int,
+      cookingTime: data['cookingTime'] as int,
+      servings: data['servings'] as int,
+      cookingMethod: data['cookingMethod'] as String,
+      isFavorite: data['isFavorite'] as bool? ?? false,
+    );
   }
 } 

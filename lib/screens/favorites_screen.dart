@@ -1,5 +1,5 @@
+import 'package:cbook/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:recipe_book/l10n/app_localizations.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});

@@ -46,6 +46,13 @@ class AppLocalizations {
       'noFavorites': 'No favorite recipes yet',
       'profile': 'Profile',
       'logout': 'Logout',
+      'userNotFound': 'User not found',
+      'wrongPassword': 'Wrong password',
+      'userDisabled': 'User account has been disabled',
+      'networkError': 'Network error. Please check your connection',
+      'resetPasswordEmailSent': 'Password reset email has been sent',
+      'resetPasswordError': 'Failed to send password reset email',
+      'forgotPassword': 'Forgot password?',
     },
     'ru': {
       'appTitle': 'Книга рецептов',
@@ -83,6 +90,13 @@ class AppLocalizations {
       'noFavorites': 'Нет избранных рецептов',
       'profile': 'Профиль',
       'logout': 'Выйти',
+      'userNotFound': 'Пользователь не найден',
+      'wrongPassword': 'Неверный пароль',
+      'userDisabled': 'Аккаунт пользователя отключен',
+      'networkError': 'Ошибка сети. Проверьте подключение',
+      'resetPasswordEmailSent': 'Письмо для сброса пароля отправлено',
+      'resetPasswordError': 'Не удалось отправить письмо для сброса пароля',
+      'forgotPassword': 'Забыли пароль?',
     },
     'kk': {
       'appTitle': 'Тағамдар кітабы',
@@ -120,6 +134,13 @@ class AppLocalizations {
       'noFavorites': 'Таңдаулы тағамдар жоқ',
       'profile': 'Профиль',
       'logout': 'Шығу',
+      'userNotFound': 'Қолданушы табылмады',
+      'wrongPassword': 'Қате құпия сөз',
+      'userDisabled': 'Қолданушы аккаунты өшірілген',
+      'networkError': 'Желі қатесі. Қосылымды тексеріңіз',
+      'resetPasswordEmailSent': 'Құпия сөзді қалпына келтіру хаты жіберілді',
+      'resetPasswordError': 'Құпия сөзді қалпына келтіру хатын жіберу сәтсіз',
+      'forgotPassword': 'Құпия сөзді ұмыттыңыз ба?',
     },
   };
 
@@ -158,4 +179,11 @@ class AppLocalizations {
   String get noFavorites => _localizedValues[locale.languageCode]!['noFavorites']!;
   String get profile => _localizedValues[locale.languageCode]!['profile']!;
   String get logout => _localizedValues[locale.languageCode]!['logout']!;
+  String get userNotFound => _localizedValues[locale.languageCode]!['userNotFound']!;
+  String get wrongPassword => _localizedValues[locale.languageCode]!['wrongPassword']!;
+  String get userDisabled => _localizedValues[locale.languageCode]!['userDisabled']!;
+  String get networkError => _localizedValues[locale.languageCode]!['networkError']!;
+  String get resetPasswordEmailSent => _localizedValues[locale.languageCode]!['resetPasswordEmailSent']!;
+  String get resetPasswordError => _localizedValues[locale.languageCode]!['resetPasswordError']!;
+  String get forgotPassword => _localizedValues[locale.languageCode]!['forgotPassword']!;
 } 

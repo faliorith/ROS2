@@ -15,34 +15,30 @@ class LanguageSelector extends StatelessWidget {
       icon: const Icon(Icons.language),
       tooltip: l10n.language,
       onSelected: (String languageCode) {
-        languageService.setLanguage(languageCode);
+        languageService.setLocale(Locale(languageCode));
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: 'ru',
-          child: Row(
-            children: [
-              Image.asset(
-                'assets/flags/ru.png',
-                width: 24,
-                height: 24,
-              ),
-              const SizedBox(width: 8),
-              const Text('Русский'),
-            ],
-          ),
-        ),
+      itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           value: 'en',
           child: Row(
             children: [
-              Image.asset(
-                'assets/flags/en.png',
-                width: 24,
-                height: 24,
-              ),
+              const Text('🇬🇧'),
               const SizedBox(width: 8),
               const Text('English'),
+              if (languageService.locale.languageCode == 'en')
+                const Icon(Icons.check, color: Colors.green),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'ru',
+          child: Row(
+            children: [
+              const Text('🇷🇺'),
+              const SizedBox(width: 8),
+              const Text('Русский'),
+              if (languageService.locale.languageCode == 'ru')
+                const Icon(Icons.check, color: Colors.green),
             ],
           ),
         ),
@@ -50,13 +46,11 @@ class LanguageSelector extends StatelessWidget {
           value: 'kk',
           child: Row(
             children: [
-              Image.asset(
-                'assets/flags/kk.png',
-                width: 24,
-                height: 24,
-              ),
+              const Text('🇰🇿'),
               const SizedBox(width: 8),
               const Text('Қазақша'),
+              if (languageService.locale.languageCode == 'kk')
+                const Icon(Icons.check, color: Colors.green),
             ],
           ),
         ),
