@@ -26,7 +26,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   
   File? _imageFile;
   int _difficulty = 1;
-  List<String> _selectedTags = [];
+  final List<String> _selectedTags = [];
   final List<String> _availableTags = [
     'завтрак', 'обед', 'ужин', 'десерт', 'суп', 
     'салат', 'выпечка', 'мясо', 'рыба', 'вегетарианское'
@@ -224,9 +224,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
               : null,
         ),
         child: _imageFile == null
-            ? Column(
+            ? const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(Icons.add_photo_alternate, size: 50, color: Colors.grey),
                   SizedBox(height: 8),
                   Text(
@@ -366,6 +366,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       // Создание рецепта
       final recipe = Recipe(
         id: '', // ID будет установлен Firestore
+        userId: user.uid, // Добавление userId
         title: _titleController.text,
         description: _descriptionController.text,
         imageUrl: imageUrl,

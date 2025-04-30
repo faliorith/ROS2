@@ -13,7 +13,7 @@ class LanguageSelector extends StatelessWidget {
 
     return PopupMenuButton<String>(
       icon: const Icon(Icons.language),
-      tooltip: l10n.language,
+      tooltip: l10n!.language,
       onSelected: (String languageCode) {
         languageService.setLocale(Locale(languageCode));
       },

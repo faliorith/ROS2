@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ros/widgets/language_selector.dart';
 import '../models/recipe.dart';
 import '../services/recipe_service.dart';
 import '../services/auth_service.dart';
 import '../l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:recipe_book/widgets/language_selector.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/recipe/recipe_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,8 +19,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   final _recipeService = RecipeService();
   final _authService = AuthService();
-  List<Recipe> _recipes = [];
-  bool _isLoading = true;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         curve: Curves.easeIn,
       ),
     );
-    _loadRecipes();
+    context.read<RecipeBloc>().add(LoadRecipes());
   }
 
   @override
@@ -44,30 +44,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  Future<void> _loadRecipes() async {
-    final user = _authService.currentUser;
-    if (user != null) {
-      final recipes = await _recipeService.getRecipes(user.uid);
-      if (mounted) {
-        setState(() {
-          _recipes = recipes;
-          _isLoading = false;
-        });
-        _animationController.forward();
-      }
-    }
-  }
-
   Future<void> _signOut() async {
     await _authService.signOut();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.of(context).pushReplacementNamed('/login');
     }
-  }
-
-  Future<void> _deleteRecipe(Recipe recipe) async {
-    await _recipeService.deleteRecipe(recipe.id);
-    _loadRecipes();
   }
 
   @override
@@ -75,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final localizations = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(localizations.myRecipes),
+        title: Text(localizations!.myRecipes),
         actions: [
           const LanguageSelector(),
           IconButton(
@@ -84,147 +65,164 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _recipes.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: BlocBuilder<RecipeBloc, RecipeState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null) {
+            return Center(
+              child: Text(
+                state.error!,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              ),
+            );
+          }
+
+          if (state.recipes.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.restaurant_menu,
+                    size: 80,
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    localizations.noRecipes,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).primaryColor.withOpacity(0.5),
+                        ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: state.recipes.length,
+              itemBuilder: (context, index) {
+                final recipe = state.recipes[index];
+                return Slidable(
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
                     children: [
-                      Icon(
-                        Icons.restaurant_menu,
-                        size: 80,
-                        color: Theme.of(context).primaryColor.withOpacity(0.5),
+                      SlidableAction(
+                        onPressed: (_) {
+                          Navigator.of(context).pushNamed(
+                            '/edit_recipe',
+                            arguments: recipe,
+                          );
+                        },
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        icon: Icons.edit,
+                        label: localizations.edit,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        localizations.noRecipes,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Theme.of(context).primaryColor.withOpacity(0.5),
-                            ),
+                      SlidableAction(
+                        onPressed: (_) => context.read<RecipeBloc>().add(DeleteRecipe(recipe.id)),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: localizations.delete,
                       ),
                     ],
                   ),
-                )
-              : FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _recipes.length,
-                    itemBuilder: (context, index) {
-                      final recipe = _recipes[index];
-                      return Slidable(
-                        endActionPane: ActionPane(
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: (_) {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/edit_recipe',
-                                  arguments: recipe,
-                                );
-                              },
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              icon: Icons.edit,
-                              label: localizations.edit,
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                          '/recipe_details',
+                          arguments: recipe,
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (recipe.imageUrl.isNotEmpty)
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: recipe.imageUrl,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              ),
                             ),
-                            SlidableAction(
-                              onPressed: (_) => _deleteRecipe(recipe),
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              icon: Icons.delete,
-                              label: localizations.delete,
-                            ),
-                          ],
-                        ),
-                        child: Card(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/recipe_details',
-                                arguments: recipe,
-                              );
-                            },
+                          Padding(
+                            padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (recipe.imageUrl.isNotEmpty)
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(16),
+                                Text(
+                                  recipe.title,
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  recipe.description,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.restaurant,
+                                      size: 16,
+                                      color: Theme.of(context).primaryColor,
                                     ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: recipe.imageUrl,
-                                      height: 200,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => const Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${recipe.ingredients.length} ${localizations.ingredients}',
+                                      style: Theme.of(context).textTheme.bodySmall,
                                     ),
-                                  ),
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        recipe.title,
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        recipe.description,
-                                        style: Theme.of(context).textTheme.bodyMedium,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.restaurant,
-                                            size: 16,
-                                            color: Theme.of(context).primaryColor,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            '${recipe.ingredients.length} ${localizations.ingredients}',
-                                            style: Theme.of(context).textTheme.bodySmall,
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Icon(
-                                            Icons.format_list_numbered,
-                                            size: 16,
-                                            color: Theme.of(context).primaryColor,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            '${recipe.steps.length} ${localizations.steps}',
-                                            style: Theme.of(context).textTheme.bodySmall,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                    const SizedBox(width: 16),
+                                    Icon(
+                                      Icons.format_list_numbered,
+                                      size: 16,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${recipe.steps.length} ${localizations.steps}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                );
+              },
+            ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/add_recipe');
+          Navigator.of(context).pushNamed('/add_recipe');
         },
         icon: const Icon(Icons.add),
         label: Text(localizations.addRecipe),

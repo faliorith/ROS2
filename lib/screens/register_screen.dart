@@ -40,13 +40,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _emailController.text,
           _passwordController.text,
         );
-        authService.navigateToMain(context);
+        
+        if (mounted) {
+          authService.navigateToMain(context);
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context).registerError),
+              content: Text(e.toString().replaceAll('Exception: ', '')),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -66,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.register),
+        title: Text(l10n!.register),
         actions: const [
           LanguageSelector(),
         ],

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/recipe_card.dart';
-import '../widgets/category_selector.dart';
-import '../widgets/search_bar.dart';
-import '../models/recipe.dart';
-import '../theme/app_theme.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
+import '../services/theme_service.dart';
+import 'ros_connection_screen.dart';
+import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,119 +13,69 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _searchController = TextEditingController();
-  String _selectedCategory = 'lunch';
-  final List<Recipe> _recipes = [];
-  bool _isLoading = true;
-  String? _error;
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadRecipes();
-  }
-
-  Future<void> _loadRecipes() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('recipes')
-          .get();
-      
-      setState(() {
-        _recipes.clear();
-        _recipes.addAll(
-          snapshot.docs.map((doc) => Recipe.fromFirestore(doc)).toList(),
-        );
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Ошибка загрузки рецептов: ${e.toString()}';
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _onCategorySelected(String category) {
-    setState(() {
-      _selectedCategory = category;
-    });
-  }
-
-  void _onSearchChanged(String query) {
-    // Реализуйте поиск
-  }
-
-  void _onFilterTap() {
-    // Реализуйте фильтрацию
-  }
+  final List<Widget> _screens = [
+    const RosConnectionScreen(),
+    const SettingsScreen(),
+  ];
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final themeService = Provider.of<ThemeService>(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomSearchBar(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              onFilterTap: _onFilterTap,
-            ),
-            CategorySelector(
-              selectedCategory: _selectedCategory,
-              onCategorySelected: _onCategorySelected,
-            ),
-            if (_isLoading)
-              const Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (_error != null)
-              Expanded(
-                child: Center(
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _recipes.length,
-                  padding: const EdgeInsets.only(top: 8, bottom: 16),
-                  itemBuilder: (context, index) {
-                    return RecipeCard(
-                      recipe: _recipes[index],
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/recipe_details',
-                          arguments: _recipes[index],
-                        ).then((_) => _loadRecipes());
-                      },
-                    );
-                  },
-                ),
-              ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/add_recipe')
-              .then((_) => _loadRecipes());
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
         },
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add),
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.home),
+            activeIcon: const Icon(Icons.home_filled),
+            label: l10n.home,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.settings),
+            activeIcon: const Icon(Icons.settings_applications),
+            label: l10n.settings,
+          ),
+        ],
+        selectedItemColor: themeService.themeMode == ThemeMode.dark 
+            ? Colors.white 
+            : const Color(0xFF2C2C2C),
+        unselectedItemColor: themeService.themeMode == ThemeMode.dark 
+            ? Colors.grey 
+            : Colors.grey[600],
+        backgroundColor: themeService.themeMode == ThemeMode.dark 
+            ? const Color(0xFF1E1E1E) 
+            : Colors.white,
+        elevation: 8,
       ),
     );
   }

@@ -14,6 +14,7 @@ class Recipe {
   final int servings;
   final String cookingMethod;
   bool isFavorite;
+  final String userId;
 
   Recipe({
     required this.id,
@@ -29,6 +30,7 @@ class Recipe {
     required this.servings,
     required this.cookingMethod,
     this.isFavorite = false,
+    required this.userId,
   });
 
   Recipe copyWith({
@@ -45,6 +47,7 @@ class Recipe {
     int? servings,
     String? cookingMethod,
     bool? isFavorite,
+    String? userId,
   }) {
     return Recipe(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class Recipe {
       servings: servings ?? this.servings,
       cookingMethod: cookingMethod ?? this.cookingMethod,
       isFavorite: isFavorite ?? this.isFavorite,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -78,24 +82,26 @@ class Recipe {
       'servings': servings,
       'cookingMethod': cookingMethod,
       'isFavorite': isFavorite,
+      'userId': userId,
     };
   }
 
   factory Recipe.fromMap(Map<String, dynamic> map) {
     return Recipe(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      description: map['description'] as String,
-      imageUrl: map['imageUrl'] as String,
-      ingredients: List<String>.from(map['ingredients']),
-      steps: List<String>.from(map['steps']),
-      tags: List<String>.from(map['tags']),
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      ingredients: List<String>.from(map['ingredients'] ?? []),
+      steps: List<String>.from(map['steps'] ?? []),
+      tags: List<String>.from(map['tags'] ?? []),
       rating: (map['rating'] as num).toDouble(),
       difficulty: map['difficulty'] as int,
       cookingTime: map['cookingTime'] as int,
       servings: map['servings'] as int,
       cookingMethod: map['cookingMethod'] as String,
       isFavorite: map['isFavorite'] as bool? ?? false,
+      userId: map['userId'] ?? '',
     );
   }
 
@@ -115,6 +121,7 @@ class Recipe {
       servings: data['servings'] as int,
       cookingMethod: data['cookingMethod'] as String,
       isFavorite: data['isFavorite'] as bool? ?? false,
+      userId: data['userId'] as String,
     );
   }
 } 

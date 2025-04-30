@@ -1,0 +1,21 @@
+{
+  "appTitle": "Flutter ROS",
+  "home": "Басты бет",
+  "settings": "Баптаулар",
+  "language": "Тіл",
+  "theme": "Тақырып",
+  "darkMode": "Қараңғы режим",
+  "lightMode": "Жарық режим",
+  "system": "Жүйелік",
+  "about": "Қолданба туралы",
+  "version": "Нұсқа",
+  "rosStatus": "ROS күйі",
+  "connected": "Қосылған",
+  "disconnected": "Қосылмаған",
+  "connect": "Қосу",
+  "disconnect": "Ажырату",
+  "host": "Хост",
+  "port": "Порт",
+  "save": "Сақтау",
+  "cancel": "Болдырмау"
+} 

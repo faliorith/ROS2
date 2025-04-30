@@ -1,5 +1,5 @@
-import 'package:cbook/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ros/l10n/app_localizations.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -10,7 +10,7 @@ class FavoritesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.favorites),
+        title: Text(l10n!.favorites),
       ),
       body: Center(
         child: Text(

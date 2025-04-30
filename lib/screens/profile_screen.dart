@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ros/l10n/app_localizations.dart';
+import 'package:flutter_ros/services/auth_service.dart';
 import 'package:provider/provider.dart';
-import 'package:recipe_book/services/auth_service.dart';
-import 'package:recipe_book/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -14,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.profile),
+        title: Text(l10n!.profile),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

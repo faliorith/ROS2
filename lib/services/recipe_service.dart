@@ -2,10 +2,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/recipe.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RecipeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'recipes';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<List<Recipe>> getRecipes(String userId) async {
     try {
@@ -26,20 +28,30 @@ class RecipeService {
 
   Future<void> addRecipe(Recipe recipe) async {
     try {
-      await _firestore.collection(_collection).add(recipe.toMap());
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('Пользователь не авторизован');
+      
+      final recipeData = recipe.toMap();
+      recipeData['userId'] = user.uid;
+      recipeData['createdAt'] = FieldValue.serverTimestamp();
+      
+      await _firestore.collection(_collection).add(recipeData);
     } catch (e) {
-      print('Ошибка добавления рецепта: $e');
+      throw Exception('Ошибка при добавлении рецепта: $e');
     }
   }
 
   Future<void> updateRecipe(Recipe recipe) async {
     try {
+      final recipeData = recipe.toMap();
+      recipeData['updatedAt'] = FieldValue.serverTimestamp();
+      
       await _firestore
           .collection(_collection)
           .doc(recipe.id)
-          .update(recipe.toMap());
+          .update(recipeData);
     } catch (e) {
-      print('Ошибка обновления рецепта: $e');
+      throw Exception('Ошибка при обновлении рецепта: $e');
     }
   }
 
@@ -47,7 +59,7 @@ class RecipeService {
     try {
       await _firestore.collection(_collection).doc(recipeId).delete();
     } catch (e) {
-      print('Ошибка удаления рецепта: $e');
+      throw Exception('Ошибка при удалении рецепта: $e');
     }
   }
 } 

@@ -27,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    final l10n = AppLocalizations.of(context);
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -39,42 +38,17 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text,
           _passwordController.text,
         );
-        authService.navigateToMain(context);
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        switch (e.code) {
-          case 'user-not-found':
-            errorMessage = l10n.userNotFound;
-            break;
-          case 'wrong-password':
-            errorMessage = l10n.wrongPassword;
-            break;
-          case 'invalid-email':
-            errorMessage = l10n.invalidEmail;
-            break;
-          case 'user-disabled':
-            errorMessage = l10n.userDisabled;
-            break;
-          case 'network-request-failed':
-            errorMessage = l10n.networkError;
-            break;
-          default:
-            errorMessage = l10n.loginError;
-        }
+        
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
+          authService.navigateToMain(context);
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.loginError),
+              content: Text(e.toString().replaceAll('Exception: ', '')),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -93,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.emailRequired),
+          content: Text(l10n!.emailRequired),
           backgroundColor: Colors.red,
         ),
       );
@@ -107,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.resetPasswordEmailSent),
+            content: Text(l10n!.resetPasswordEmailSent),
             backgroundColor: Colors.green,
           ),
         );
@@ -116,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.resetPasswordError),
+            content: Text(l10n!.resetPasswordError),
             backgroundColor: Colors.red,
           ),
         );
@@ -144,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  l10n.appTitle,
+                  l10n!.appTitle,
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
